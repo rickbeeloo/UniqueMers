@@ -19,21 +19,63 @@ cargo build --release
 
 The executable should now be in `/target/release/`. For example on Windows this would be `./target/release/UniqueMers.exe` on windows.
 
-## Example 
-if we run `UniqueMers.exe kmers.fasta 3 5 5` the `kmers.fasta` looks like:
+## Examples
+if we run `UniqueMers.exe kmers.fasta 2 16 0` the `kmers.fasta` looks like:
 
 ```
 >seq1
-AAA
+AAT
 >seq2
-AACGTGAT
+ACG
 >seq3
-AAGCTA
+AG
 >seq4
-AATG
+ATG
 >seq5
-ACAGT
+CAA
+>seq6
+CC
+>seq7
+CGCT
+>seq8
+CTA
+>seq9
+GAGA
+>seq10
+GCCG
+>seq11
+GG
+>seq12
+GTA
+>seq13
+TA
+>seq14
+TC
+>seq15
+TGTT
+>seq16
+TTG
+```
+Note that we can have a max of 16 unique kmers (`4^2`), so passing 17 as `max_kmers` will panic with:
+
+>Cannot generate sufficient unique kmers, increase k
+
+If we want to add random "tails" to these unique kmers we can set the tails to `5` for example, then we get something like this:
+
+```
+>seq1
+AACGGCT
+>seq2
+ACTGGTA
+>seq3
+AGA
+>seq4
+ATG
+>seq5
+CAAAAA
+>seq6
+CC
 ```
 
-Note that while for example `seq1` is exactly the kmer size (`3`) some sequences are longer cause of the tail being `5`. For example `seq2` is `k + 5`.
+While now we still have some sequences equal to `k`, like `>seq6`, we also have longer sequences, up to `k+tail=2+5=7`, like `>seq1`.
 
