@@ -7,14 +7,14 @@ use rand::seq::SliceRandom;
 fn generate_kmers_recursive(
     current_kmer: &str,
     length: usize,
-    nucleotides: &[u8], 
+    nucleotides: &[u8],
     file: &mut BufWriter<File>,
     max_kmers: usize,
     tail_length: usize,
     rng: &mut impl Rng,
     i: &mut usize,
-    reusable_tail: &mut Vec<u8>, 
-    buffer: &mut Vec<u8>, 
+    reusable_tail: &mut Vec<u8>,
+    buffer: &mut Vec<u8>,
 ) {
     // Done if we reached max kmers
     if *i > max_kmers {
@@ -28,12 +28,22 @@ fn generate_kmers_recursive(
         buffer.extend_from_slice(&reusable_tail);
         writeln!(file, ">seq{}", *i).expect("Write failed");
         file.write_all(&buffer).expect("Write failed");
+        write!(file, "\n").expect("Write failed");
         *i += 1;
+
+        // Print progress for every 1 million kmers with percentage rounded to two decimals
+        if *i % 1_000_000 == 0 {
+            let percentage = (*i as f64 / max_kmers as f64) * 100.0;
+            println!("Generated {} kmers ({:.2}%)", *i, percentage);
+        }
+
     } else {
         for &nucleotide in nucleotides {
-            reusable_tail.push(nucleotide);
+            let mut next_kmer = current_kmer.to_string();
+            next_kmer.push(nucleotide as char);
+
             generate_kmers_recursive(
-                current_kmer,
+                &next_kmer,
                 length - 1,
                 nucleotides,
                 file,
@@ -44,7 +54,6 @@ fn generate_kmers_recursive(
                 reusable_tail,
                 buffer,
             );
-            reusable_tail.pop();
         }
     }
 }
@@ -69,7 +78,7 @@ fn generate_kmers(
     let mut i = 1;
     let mut rng = rand::thread_rng(); // Initialize the random number generator
     let mut reusable_tail = Vec::with_capacity(tail_length);
-    let mut buffer = Vec::new(); // Reusable buffer for writing
+    let mut buffer = Vec::with_capacity(kmer_length + tail_length); // Preallocate buffer
 
     generate_kmers_recursive(
         "",
@@ -87,10 +96,8 @@ fn generate_kmers(
 
 // Check if we can generate sufficient kmers with the given k size
 fn can_generate_kmers(k: usize, max_kmers: usize) -> bool {
-    let num_nucleotides: u64 = 4; 
-    println!("k: {}, and max: {}", k, max_kmers);
+    let num_nucleotides: u64 = 4;
     let total_kmers: usize = num_nucleotides.pow(k as u32) as usize;
-    println!("total mers: {}", total_kmers);
     max_kmers <= total_kmers
 }
 

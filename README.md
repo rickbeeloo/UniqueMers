@@ -37,13 +37,3 @@ ACAGT
 
 Note that while for example `seq1` is exactly the kmer size (`3`) some sequences are longer cause of the tail being `5`. For example `seq2` is `k + 5`.
 
-## Performance
-If we use `k=17` and a tail size of `10`:
-```
-1 thousand sequences: 0m0.047s
-1 million sequences: 0m0.393s
-10 million sequences: 0m1.215s
-1 billion sequences: 1m56.440s
-2^32 sequences: 20m16.077s
-```
-(real times reported by `time`)
